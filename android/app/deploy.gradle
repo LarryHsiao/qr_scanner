@@ -1,0 +1,23 @@
+if (System.getenv("GOOGLE_SERVICE_ACCOUNT_JSON") != null) {
+    apply plugin: "com.github.triplet.play"
+    play {
+        fromTrack.set("alpha")
+        defaultToAppBundles.set(true)
+        serviceAccountCredentials.set(file(System.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")))
+    }
+}
+
+if (System.getenv("UPLOAD_STORE_PATH")!=null){
+    android {
+        signingConfigs {
+            release {
+                storeFile file(System.getenv('UPLOAD_STORE_PATH'));
+                keyAlias System.getenv('UPLOAD_KEY_ALIAS');
+                keyPassword System.getenv('UPLOAD_KEY_PASSWORD');
+                storePassword System.getenv('UPLOAD_STORE_PASSWORD');
+            }
+            buildTypes.release.signingConfig signingConfigs.release
+            buildTypes.debug.signingConfig signingConfigs.release
+        }
+    }
+}
