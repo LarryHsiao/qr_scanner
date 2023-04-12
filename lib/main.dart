@@ -36,43 +36,42 @@ class QRScannerState extends State<QRScannerWidget> {
         builder: (context) {
           return Scaffold(
             body: WidgetSize(
-                onChange: (Size size) {
-                  setState(() {
-                    var focusSize = min(size.width, size.height) * 0.7;
-                    _detectionArea = Rect.fromLTWH(
-                      (size.width / 2) - (focusSize/ 2.0),
-                      (size.height / 2) - (focusSize / 2.0),
-                      focusSize,
-                      focusSize,
-                    );
-                  });
-                },
-                child: Stack(
-                  children: [
-                    MobileScanner(
-                      controller: cameraController,
-                      scanWindow: _detectionArea,
-                      onDetect: (capture) {
-                        final List<Barcode> barcodes = capture.barcodes;
-                        if (barcodes.isNotEmpty) {
-                          Uri? uri = Uri.tryParse(barcodes.first.rawValue ??
-                              "");
-                          _isUri = uri?.scheme.isNotEmpty == true;
-                          _content = barcodes.first.rawValue ?? "";
-                        } else {
-                          _isUri = false;
-                          _content = "";
-                        }
-                        setState(() {});
-                      },
-                    ),
-                    CustomPaint(
-                      size: Size.infinite,
-                      painter: FocusMask(_detectionArea),
-                    ),
-                    _targetWidget(context, _content),
-                  ],
-                ),
+              onChange: (Size size) {
+                setState(() {
+                  var focusSize = min(size.width, size.height) * 0.7;
+                  _detectionArea = Rect.fromLTWH(
+                    (size.width / 2) - (focusSize / 2.0),
+                    (size.height / 2) - (focusSize / 2.0),
+                    focusSize,
+                    focusSize,
+                  );
+                });
+              },
+              child: Stack(
+                children: [
+                  MobileScanner(
+                    controller: cameraController,
+                    scanWindow: _detectionArea,
+                    onDetect: (capture) {
+                      final List<Barcode> barcodes = capture.barcodes;
+                      if (barcodes.isNotEmpty) {
+                        Uri? uri = Uri.tryParse(barcodes.first.rawValue ?? "");
+                        _isUri = uri?.scheme.isNotEmpty == true;
+                        _content = barcodes.first.rawValue ?? "";
+                      } else {
+                        _isUri = false;
+                        _content = "";
+                      }
+                      setState(() {});
+                    },
+                  ),
+                  CustomPaint(
+                    size: Size.infinite,
+                    painter: FocusMask(_detectionArea),
+                  ),
+                  _targetWidget(context, _content),
+                ],
+              ),
             ),
           );
         },
@@ -115,11 +114,13 @@ class QRScannerState extends State<QRScannerWidget> {
           },
           child: Row(
             children: [
-              Text(
-                _content,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24
+              Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 300,
+                ),
+                child: Text(
+                  _content,
+                  style: const TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ),
               const SizedBox(width: 8),
@@ -142,7 +143,10 @@ class QRScannerState extends State<QRScannerWidget> {
   _launchURL(BuildContext context, String url) {
     canLaunchUrl(Uri.parse(url)).then((value) {
       if (value) {
-        launchUrl(Uri.parse(url));
+        launchUrl(
+          Uri.parse(url),
+          mode: LaunchMode.externalApplication,
+        );
       } else {
         _copy(context, url);
       }
